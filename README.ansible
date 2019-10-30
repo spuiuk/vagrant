@@ -1,0 +1,7 @@
+Install ansible.
+To communicate with the windows machines, you will also need the requests and winrm python libraries. You can either install this using the package manager to install python3-requests and python3-pywinrm or install them using pip.
+Since I am using centos8, it did not have the pywinrm module as an rpm and so I had to use pip. Running ansible however fails with the error message "winrm or requests is not installed: No module named winrm". This was fixed by removing the -s argument to the python interpretor in /usr/bin/ansible. 
+ie. change the line
+#!/usr/libexec/platform-python -s
+to
+#!/usr/libexec/platform-python

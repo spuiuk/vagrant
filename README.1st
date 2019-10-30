@@ -1,0 +1,3 @@
+Before you proceed, install vagrant using README.vagrant and ansible using README.ansible files.
+
+When creating a new test machine, create a new folder within the windows directory, add the Vagrantfile and windows_server.yml file to the new
