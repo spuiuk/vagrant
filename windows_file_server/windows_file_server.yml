@@ -1,0 +1,44 @@
+---
+
+- name: Setup a test windows file server
+  hosts: all
+
+  tasks:
+
+    - name: Change password policy to accept simple passwords
+      win_security_policy:
+        section: System Access
+        key: PasswordComplexity
+        value: 0
+
+    - name: Create users test1 and test2 with password x
+      win_user:
+        name: '{{ item.name }}'
+        password: 'x'
+        groups: Users
+        update_password: on_create
+        password_never_expires: yes
+      with_items:
+        - name: test1
+        - name: test2
+
+    - name: Create folder c:\test
+      win_file:
+        path: c:\test
+        state: directory
+
+    - name: Set world writable permissions for c:\test
+      #win_shell: CACLS c:\test /e /p Users:f
+      win_acl:
+        path: c:\test
+        user: Users
+        rights: FullControl
+        type: allow
+
+    - name: Share folder c:\test
+      #win_shell: net share test=c:\test /grant:everyone,FULL
+      win_share:
+        name: test
+        description: Test share
+        path: c:\test
+        full: everyone
