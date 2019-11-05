@@ -1,6 +1,11 @@
-Install vagrant and the libvirt plugin
-
 On libvirt, using the virt-manager,
 - Create a storage pool named "vagrant-pool" in which you will store your vagrant machine images.
 - I also create a new network pool with address 192.168.140.0/24. When creating a vagrant machine, I add a private interface with a static ip from this range.
+
+Install the vagrant libvirt and winrm plugins.
+To install the latest version of vagrant plugins using the command 'vagrant plugin install..' you will need the following -devel packages.
+sudo dnf install ruby-devel zlib-devel libvirt-devel
+
+Once done, install plugins with the command
+vagrant plugin install vagrant-hostmanager vagrant-libvirt winrm winrm-fs winrm-elevated
 
