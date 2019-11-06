@@ -8,6 +8,12 @@
         name: '*'
         state: latest
 
+    - name: Install ntp
+      yum: name=ntp state=present
+
+    - name: Ensure ntp is running
+      service: name=ntpd state=started enabled=yes
+
     - name: Install management tools
       yum:
         name:
