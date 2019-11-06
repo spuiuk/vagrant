@@ -1,0 +1,183 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+
+    - name: Update all packages
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Install management tools
+      yum:
+        name:
+          - sudo
+          - iputils
+          - vim
+          - autofs
+        state: present
+
+    - name: Install filesystem tools
+      yum:
+        name:
+          - cifs-utils
+          - nfs-utils
+        state: present
+
+    - name: Install development tools
+      yum:
+        name:
+          - git
+          - gdb
+          - gcc
+          - python
+          - perl
+          - automake
+          - autoconf
+          - libtool
+          - flex
+          - bison
+        state: present
+
+    - name: Install devel tools needed to build samba
+      yum:
+        name:
+          - openssl-devel
+          - libxml2-devel
+          - python-devel
+          - libaio-devel
+          - libibverbs-devel
+          - librdmacm-devel
+          - readline-devel
+          - lvm2-devel
+          - glib2-devel
+          - userspace-rcu-devel
+          - libcmocka-devel
+          - libacl-devel
+          - sqlite-devel
+          - fuse-devel
+          - cups-devel
+          - dbus-devel
+          - docbook-style-xsl
+          - libarchive-devel
+          - libcap-devel
+          - libldb-devel
+          - libtalloc-devel
+          - libtdb-devel
+          - libtevent-devel
+          - libxslt
+          - openldap-devel
+          - pam-devel
+          - perl-ExtUtils-MakeMaker
+          - perl-Parse-Yapp
+          - perl-Test-Simple
+          - popt-devel
+          - pyldb-devel
+          - pytalloc-devel
+          - python-tdb
+          - python-tevent
+          - quota-devel
+          - gnutls-devel
+          - libtirpc
+          - libtirpc-devel
+          - libnsl2-devel
+          - rpcgen
+          - jansson-devel
+          - python3-devel
+        state: present
+
+    - name: Install gluster devel packages
+      yum:
+        name:
+          - glusterfs-api-devel
+          - glusterfs-devel
+        state: present
+
+    - name: Install samba
+      yum:
+        name:
+          - samba
+
+    - name: Allow all users to sudo
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        insertafter: EOF
+        line: 'ALL ALL=(ALL) NOPASSWD: ALL'
+
+    - name: Create /root/.ssh
+      file:
+        path: /root/.ssh
+        owner: root
+        group: root
+        mode: 0700
+        state: directory
+
+    - name: Copy authorized_keys to /root/.ssh
+      copy:
+        src: authorized_keys
+        dest: /root/.ssh/authorized_keys
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: Create user sprabhu
+      user:
+        name: sprabhu
+        state: present
+
+    - name: Create /home/sprabhu/.ssh
+      file:
+        path: /home/sprabhu/.ssh
+        owner: sprabhu
+        group: sprabhu
+        mode: 0700
+        state: directory
+
+    - name: Copy authorized_keys to /home/sprabhu/.ssh
+      copy:
+        src: authorized_keys
+        dest: /home/sprabhu/.ssh/authorized_keys
+        owner: sprabhu
+        group: sprabhu
+        mode: 0600
+
+    - name: Create test users
+      user:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - wintest1
+        - wintest2
+        - test1
+        - test2
+
+    - name: Create test users within smbpasswd wintest1 using smbpasswd
+      shell: (echo {{ item.password }}; echo {{ item.password }})|smbpasswd -a {{ item.username }}
+      with_items:
+        - { username: 'wintest1', password: 'Redhat321' }
+        - { username: 'wintest2', password: 'Redhat321' }
+        - { username: 'test1', password: 'x' }
+        - { username: 'test2', password: 'x' }
+
+    - name: Create folder for export
+      file:
+        path: /test
+        state: directory
+        owner: root
+        group: root
+        mode: 0777
+
+    - name: Copy over smb.conf
+      copy:
+        src: smb.conf
+        dest: /etc/samba/smb.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Clear UUID from network interface
+      lineinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        regexp: '^UUID='
+        state: absent
