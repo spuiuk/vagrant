@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    gluster_nodes:
+      - vm145-91
+      - vm145-92
+      - vm145-93
+    gluster_command_node: vm145-93
+    gluster_volume_type: distributed
+  roles:
+    - common_startup
+    - dev_tools
+    - samba
+    - gluster_volume
+
